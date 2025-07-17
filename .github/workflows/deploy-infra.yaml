@@ -34,15 +34,23 @@ jobs:
         working-directory: .
         run: terraform init
 
-      - name: Terraform Plan
+      - name: Terraform Plan (console 출력 포함)
         working-directory: .
-        run: terraform plan
+        run: |
+          echo "🧪 Running terraform plan and storing output..."
+          terraform plan -out=tfplan
+          echo ""
+          echo "📋 Showing terraform plan:"
+          terraform show -no-color tfplan
 
       - name: Terraform Apply or Destroy
         working-directory: .
         run: |
           if [ "${{ github.event.inputs.action }}" == "destroy" ]; then
-            terraform destroy -auto-approve
+          echo "🔥 Running terraform destroy..."
+          terraform destroy -auto-approve
           else
-            terraform apply -auto-approve
-          fi
+          echo "🚀 Running terraform apply using saved plan (tfplan)..."
+          terraform apply -auto-approve tfplan
+
+
