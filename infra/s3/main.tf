@@ -1,6 +1,4 @@
-provider "aws" {
-  region = "ap-northeast-2"
-}
+
 
 # S3 버킷 생성
 resource "aws_s3_bucket" "output_bucket" {
