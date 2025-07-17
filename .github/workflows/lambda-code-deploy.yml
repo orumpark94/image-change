@@ -1,17 +1,19 @@
 name: Deploy Lambda Code Only
 
 on:
-  push:
-    paths:
-      - 'lambda/**'
+  workflow_dispatch:
 
 jobs:
   deploy-lambda-code:
     runs-on: ubuntu-latest
 
     env:
-      S3_BUCKET_NAME: image-resolution-tfstate-bucket   # ✅ 기존 tfstate 버킷 사용
+      S3_BUCKET_NAME: image-resolution-tfstate-bucket
       AWS_REGION: ap-northeast-2
+
+    defaults:
+      run:
+        working-directory: ./  # 루트 디렉토리 기준
 
     steps:
       - name: Checkout code
@@ -28,12 +30,10 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Create ZIP for presign-handler
-        run: |
-          zip -r presign-handler.zip lambda/presign-handler
+        run: zip -r presign-handler.zip lambda/presign-handler
 
       - name: Create ZIP for resize-handler
-        run: |
-          zip -r resize-handler.zip lambda/resize-handler
+        run: zip -r resize-handler.zip lambda/resize-handler
 
       - name: Upload ZIPs to tfstate bucket (lambda/)
         run: |
