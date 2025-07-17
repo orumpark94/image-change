@@ -47,7 +47,7 @@ module "lambda_resize" {
   providers = {
     aws = aws
   }
-  depends_on = [module.s3]
+  depends_on = [module.s3, module.cloudfront]
 }
 
 module "api_gateway" {
