@@ -22,3 +22,10 @@ variable "s3_bucket_name" {
   description = "React 프론트엔드 및 alb-config.json이 저장될 S3 버킷 이름"
   type        = string
 }
+
+
+variable "stage_name" {
+  description = "API Gateway Stage 이름"
+  type        = string
+  default     = "default"
+}

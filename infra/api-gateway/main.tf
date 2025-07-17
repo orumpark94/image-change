@@ -150,8 +150,9 @@ resource "aws_api_gateway_stage" "this" {
 ############################
 
 locals {
-  api_gateway_url = "https://${aws_api_gateway_rest_api.this.id}.execute-api.${var.region}.amazonaws.com/${aws_api_gateway_deployment.this.stage_name}"
+  api_gateway_url = "https://${aws_api_gateway_rest_api.this.id}.execute-api.${var.region}.amazonaws.com/${var.stage_name}"
 }
+
 
 data "template_file" "alb_config" {
   template = jsonencode({
