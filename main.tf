@@ -21,8 +21,8 @@ module "s3" {
   origin_access_identity = module.cloudfront.origin_access_identity
   resized_image_expire_days = 30
 
-  resize_lambda_name = module.lambda_resize.lambda_function_name
-  resize_lambda_arn  = module.lambda_resize.lambda_function_arn
+  #resize_lambda_name = module.lambda_resize.lambda_function_name
+  #resize_lambda_arn  = module.lambda_resize.lambda_function_arn
   providers = {
     aws = aws
   }

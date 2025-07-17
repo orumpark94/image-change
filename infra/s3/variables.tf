@@ -26,12 +26,12 @@ variable "cloudfront_distribution_arn" {
   type        = string
 }
 
-variable "resize_lambda_name" {
-  description = "리사이징용 Lambda 함수 이름"
-  type        = string
-}
+#variable "resize_lambda_name" {
+#  description = "리사이징용 Lambda 함수 이름"
+#  type        = string
+#}
 
-variable "resize_lambda_arn" {
-  description = "리사이징용 Lambda ARN"
-  type        = string
-}
+#variable "resize_lambda_arn" {
+#  description = "리사이징용 Lambda ARN"
+#  type        = string
+#}
