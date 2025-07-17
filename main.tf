@@ -1,8 +1,14 @@
+provider "aws" {
+  region = var.region
+}
+
 module "cloudfront" {
   source            = "./infra/cloudfront"
   s3_bucket_name    = var.s3_bucket_name                            
   bucket_domain_name = "${var.s3_bucket_name}.s3.amazonaws.com"     
-
+  providers = {
+    aws = aws
+  }
 
 }
 
@@ -17,7 +23,9 @@ module "s3" {
 
   resize_lambda_name = module.lambda_resize.lambda_function_name
   resize_lambda_arn  = module.lambda_resize.lambda_function_arn
-
+  providers = {
+    aws = aws
+  }
   depends_on = [module.cloudfront]
 }
 
@@ -26,7 +34,9 @@ module "lambda_presign" {
   lambda_name = "presign-handler"
   s3_bucket_name = module.s3.bucket_name
   allowed_origin = "https://${module.cloudfront.cloudfront_domain_name}"
-
+  providers = {
+    aws = aws
+  }
   depends_on = [module.s3, module.cloudfront]
 }
 
@@ -34,7 +44,9 @@ module "lambda_resize" {
   source = "./infra/lambda/resize-handler"
   lambda_name = "resize-handler"
   s3_bucket_name = module.s3.bucket_name
-
+  providers = {
+    aws = aws
+  }
   depends_on = [module.s3]
 }
 
@@ -45,7 +57,9 @@ module "api_gateway" {
   lambda_presign_function_name = module.lambda_presign.lambda_function_name
   allowed_origin = module.cloudfront.cloudfront_domain_name
   s3_bucket_name = module.s3.bucket_name
-
+  providers = {
+    aws = aws
+  }
   depends_on = [module.lambda_presign, module.cloudfront]
 }
 
@@ -57,4 +71,5 @@ terraform {
     region = "ap-northeast-2"
     encrypt = true
   }
+  
 }
