@@ -52,5 +52,6 @@ jobs:
           else
           echo "🚀 Running terraform apply using saved plan (tfplan)..."
           terraform apply -auto-approve tfplan
+          fi
 
 
