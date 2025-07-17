@@ -1,0 +1,52 @@
+name: Deploy or Destroy Backend S3 for Terraform State
+
+on:
+  workflow_dispatch:
+    inputs:
+      action_type:
+        description: "Choose action: apply or destroy"
+        required: true
+        default: "apply"
+        type: choice
+        options:
+          - apply
+          - destroy
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: infra/backend-s3
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_IAMROLE_CREATE }}
+          aws-secret-access-key: ${{ secrets.AWS_IAMROLE_SECRET }}
+          aws-region: ap-northeast-2
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan (for apply)
+        if: ${{ github.event.inputs.action_type == 'apply' }}
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        if: ${{ github.event.inputs.action_type == 'apply' }}
+        run: terraform apply -auto-approve tfplan
+
+      - name: Terraform Destroy
+        if: ${{ github.event.inputs.action_type == 'destroy' }}
+        run: terraform destroy -auto-approve

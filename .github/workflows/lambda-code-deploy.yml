@@ -1,0 +1,41 @@
+name: Deploy Lambda Code Only
+
+on:
+  push:
+    paths:
+      - 'lambda/**'
+
+jobs:
+  deploy-lambda-code:
+    runs-on: ubuntu-latest
+
+    env:
+      S3_BUCKET_NAME: image-resolution-tfstate-bucket   # ✅ 기존 tfstate 버킷 사용
+      AWS_REGION: ap-northeast-2
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Create ZIP for presign-handler
+        run: |
+          zip -r presign-handler.zip lambda/presign-handler
+
+      - name: Create ZIP for resize-handler
+        run: |
+          zip -r resize-handler.zip lambda/resize-handler
+
+      - name: Upload ZIPs to tfstate bucket (lambda/)
+        run: |
+          aws s3 cp presign-handler.zip s3://$S3_BUCKET_NAME/lambda/presign-handler.zip
+          aws s3 cp resize-handler.zip s3://$S3_BUCKET_NAME/lambda/resize-handler.zip
