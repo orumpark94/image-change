@@ -35,11 +35,11 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
-        working-directory: infra
+        working-directory: .
         run: terraform plan
 
       - name: Terraform Apply or Destroy
-        working-directory: infra
+        working-directory: .
         run: |
           if [ "${{ github.event.inputs.action }}" == "destroy" ]; then
             terraform destroy -auto-approve
