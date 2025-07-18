@@ -21,7 +21,7 @@ resource "aws_cloudfront_response_headers_policy" "secure_policy" {
 # ✅ 수정됨: 버킷 이름을 문자열로 직접 조합하여 참조
 resource "aws_cloudfront_distribution" "this" {
   origin {
-    domain_name = "${var.s3_bucket_name}.s3.amazonaws.com"
+    domain_name = "${var.s3_bucket_name}.s3.${var.region}.amazonaws.com"
     origin_id   = "s3-origin"
 
     s3_origin_config {

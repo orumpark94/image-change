@@ -7,3 +7,8 @@ variable "s3_bucket_name" {
   description = "연결할 S3 버킷 이름"
   type        = string
 }
+
+variable "region" {
+  type        = string
+  default     = "ap-northeast-2"
+}
