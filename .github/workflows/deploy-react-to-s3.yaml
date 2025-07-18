@@ -1,4 +1,3 @@
-#s3 frontend 배포 워크플로우
 name: Deploy React App to S3 (Manual)
 
 on:
@@ -20,8 +19,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: 'npm'  # ✅ Node 모듈 캐싱 (선택)
 
-      - name: Install dependencies
+      - name: Ensure package-lock.json exists
+        run: test -f package-lock.json || (echo "❌ package-lock.json not found!" && exit 1)
+
+      - name: Install dependencies with npm ci
         run: npm ci
 
       - name: Build React app
@@ -35,4 +38,4 @@ jobs:
           AWS_S3_BUCKET: image-resolution-output-bucket
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          SOURCE_DIR: build   # ✅ frontend/build 기준으로 sync 됨
+          SOURCE_DIR: build
