@@ -17,3 +17,8 @@ output "origin_access_identity" {
   description = "CloudFront에서 생성한 Origin Access Identity (Canonical User ID)"
   value       = aws_cloudfront_origin_access_identity.this.s3_canonical_user_id
 }
+
+output "origin_access_identity_path" {
+  description = "CloudFront에서 S3 접근을 위한 Origin Access Identity 경로"
+  value       = aws_cloudfront_origin_access_identity.this.cloudfront_access_identity_path
+}

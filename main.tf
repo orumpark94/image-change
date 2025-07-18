@@ -19,6 +19,7 @@ module "s3" {
   cloudfront_domain_name = module.cloudfront.cloudfront_domain_name
   cloudfront_distribution_arn = module.cloudfront.cloudfront_distribution_arn
   origin_access_identity = module.cloudfront.origin_access_identity
+  origin_access_identity_path = module.cloudfront.origin_access_identity_path
   resized_image_expire_days = 30
 
   #resize_lambda_name = module.lambda_resize.lambda_function_name
