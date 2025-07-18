@@ -122,6 +122,7 @@ resource "aws_api_gateway_integration_response" "options_response" {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
     "method.response.header.Access-Control-Allow-Methods" = "'GET,OPTIONS'"
   }
+  depends_on = [aws_api_gateway_integration.options_mock]  # ✅ 이거 추가
 }
 
 ############################
