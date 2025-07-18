@@ -43,3 +43,11 @@ resource "aws_lambda_function" "presign_handler" {
     }
   }
 }
+
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}

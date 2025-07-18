@@ -65,3 +65,11 @@ resource "aws_s3_bucket_notification" "trigger_lambda" {
 
   depends_on = [aws_lambda_permission.allow_s3]
 }
+
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}

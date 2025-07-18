@@ -64,3 +64,11 @@ resource "aws_cloudfront_distribution" "this" {
     Name = "secure-cloudfront"
   }
 }
+
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}

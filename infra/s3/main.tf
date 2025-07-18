@@ -114,3 +114,12 @@ resource "aws_s3_bucket_policy" "allow_cf_read" {
 
 #  depends_on = [aws_lambda_permission.allow_s3_to_invoke_resize]
 #}
+
+
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}

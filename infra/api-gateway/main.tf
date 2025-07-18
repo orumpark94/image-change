@@ -162,3 +162,11 @@ resource "aws_s3_object" "alb_config" {
   content      = data.template_file.alb_config.rendered
   content_type = "application/json"
 }
+
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}
