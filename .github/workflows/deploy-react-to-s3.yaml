@@ -9,7 +9,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: frontend   # ✅ frontend 디렉토리 명시
+        working-directory: frontend
 
     steps:
       - name: Checkout source code
@@ -19,18 +19,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-     
 
-      - name: Ensure package-lock.json exists
-        run: test -f package-lock.json || (echo "❌ package-lock.json not found!" && exit 1)
-
-      - name: Install dependencies with npm ci
-        run: npm ci
+      # ✅ npm install로 변경
+      - name: Install dependencies
+        run: npm install
 
       - name: Build React app
         run: npm run build
 
-      - name: Deploy React build to S3 (build/ only)
+      - name: Deploy React build to S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --acl public-read --delete --cache-control "no-store"
