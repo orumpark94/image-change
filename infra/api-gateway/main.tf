@@ -1,4 +1,3 @@
-
 data "aws_caller_identity" "current" {}
 
 ############################
@@ -72,7 +71,7 @@ resource "aws_api_gateway_integration_response" "get_cors" {
   status_code = aws_api_gateway_method_response.get_cors.status_code
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"  = "\"https://${var.allowed_origin}\""
+    "method.response.header.Access-Control-Allow-Origin"  = "'https://${var.allowed_origin}'"
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
     "method.response.header.Access-Control-Allow-Methods" = "'GET,OPTIONS'"
   }
@@ -119,7 +118,7 @@ resource "aws_api_gateway_integration_response" "options_response" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"  = "\"https://${var.allowed_origin}\""
+    "method.response.header.Access-Control-Allow-Origin"  = "'https://${var.allowed_origin}'"
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
     "method.response.header.Access-Control-Allow-Methods" = "'GET,OPTIONS'"
   }
@@ -144,15 +143,12 @@ resource "aws_api_gateway_stage" "this" {
   deployment_id = aws_api_gateway_deployment.this.id
 }
 
-
 ############################
 # API Gateway URL → alb-config.json → S3 저장
 ############################
-
 locals {
   api_gateway_url = "https://${aws_api_gateway_rest_api.this.id}.execute-api.${var.region}.amazonaws.com/${var.stage_name}"
 }
-
 
 data "template_file" "alb_config" {
   template = jsonencode({
