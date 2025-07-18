@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: 'npm'  # ✅ Node 모듈 캐싱 (선택)
+     
 
       - name: Ensure package-lock.json exists
         run: test -f package-lock.json || (echo "❌ package-lock.json not found!" && exit 1)
