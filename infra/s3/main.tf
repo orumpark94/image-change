@@ -30,6 +30,10 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "sse" {
   }
 }
 
+data "aws_cloudfront_origin_access_identity" "this" {
+  id = aws_cloudfront_origin_access_identity.this.id
+}
+
 # CORS 설정 - CloudFront 도메인만 허용
 resource "aws_s3_bucket_cors_configuration" "cors" {
   bucket = aws_s3_bucket.output_bucket.id
@@ -85,7 +89,7 @@ resource "aws_s3_bucket_policy" "allow_cf_read" {
         Sid: "AllowCloudFrontReadOnly",
         Effect = "Allow",
         Principal = {
-          "CanonicalUser": var.origin_access_identity
+          "CanonicalUser": data.aws_cloudfront_origin_access_identity.this.s3_canonical_user_id
         },
         Action = "s3:GetObject",
         Resource = "${aws_s3_bucket.output_bucket.arn}/*"
