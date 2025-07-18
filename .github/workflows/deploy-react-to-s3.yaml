@@ -30,7 +30,7 @@ jobs:
       - name: Deploy React build to S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
-          args: --acl public-read --delete --cache-control "no-store"
+          args: --delete --cache-control "no-store"
         env:
           AWS_S3_BUCKET: image-resolution-output-bucket
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
