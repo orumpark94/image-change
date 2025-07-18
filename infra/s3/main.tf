@@ -44,18 +44,6 @@ resource "aws_s3_bucket_cors_configuration" "cors" {
   }
 }
 
-# 웹사이트 호스팅 설정
-resource "aws_s3_bucket_website_configuration" "website" {
-  bucket = aws_s3_bucket.output_bucket.id
-
-  index_document {
-    suffix = "index.html"
-  }
-
-  error_document {
-    key = "error.html"
-  }
-}
 
 # Lifecycle Rule - /resized/ 경로 파일 자동 만료
 resource "aws_s3_bucket_lifecycle_configuration" "expire_old_resized" {
