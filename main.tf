@@ -34,7 +34,7 @@ module "lambda_presign" {
   source = "./infra/lambda/presign-handler"
   lambda_name = "presign-handler"
   s3_bucket_name = module.s3.bucket_name
-  allowed_origin = "https://${module.cloudfront.cloudfront_domain_name}"
+  allowed_origin = module.cloudfront.cloudfront_domain_name
   providers = {
     aws = aws
   }
