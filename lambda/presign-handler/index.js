@@ -6,14 +6,27 @@ const s3 = new S3Client({ region: "ap-northeast-2" });
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp"];
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
+// ✅ Origin 정규화: https:// 포함 여부와 fallback 처리까지
+const origin = process.env.ALLOWED_ORIGIN || "*";
+const allowOrigin = origin.startsWith("http") ? origin : `https://${origin}`;
+
 const corsHeaders = {
-  "Access-Control-Allow-Origin": process.env.ALLOWED_ORIGIN || "*",
+  "Access-Control-Allow-Origin": allowOrigin,
   "Access-Control-Allow-Headers": "Content-Type",
-  "Access-Control-Allow-Methods": "GET,OPTIONS",
+  "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
   "Content-Type": "application/json"
 };
 
 export const handler = async (event) => {
+  // ✅ OPTIONS 요청 처리 (CORS Preflight 대응)
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: JSON.stringify({ message: "CORS preflight OK" }),
+    };
+  }
+
   let body;
 
   // ✅ JSON 파싱 예외 처리
