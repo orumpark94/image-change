@@ -35,15 +35,18 @@ function App() {
 
     try {
       // 1️⃣ Presigned URL 요청 (GET + Query String 방식)
-      const queryParams = new URLSearchParams({
-        filename: file.name,
-        mimetype: file.type,
-        size: file.size,
-      }).toString();
+      const res = await fetch(`${apiUrl}/presign`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    filename: file.name,
+    mimetype: file.type,
+    size: file.size
+  })
+});
 
-      const res = await fetch(`${apiUrl}/presign?${queryParams}`, {
-        method: "GET",
-      });
 
       if (!res.ok) throw new Error("Presigned URL 요청 실패");
 
