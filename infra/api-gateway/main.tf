@@ -41,8 +41,8 @@ resource "aws_lambda_permission" "api_gw_invoke_presign_post" {
   action        = "lambda:InvokeFunction"
   function_name = var.lambda_presign_function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.this.execution_arn}/POST/presign"
-
+  source_arn    = "${aws_api_gateway_rest_api.this.execution_arn}/*/POST/presign"
+  
   depends_on = [
     aws_api_gateway_method.post_presign,
     aws_api_gateway_integration.post_lambda_presign,
