@@ -43,6 +43,30 @@ resource "aws_lambda_function" "resize_handler" {
   }
 }
 
+resource "aws_iam_policy" "allow_kms_lambda" {
+  name = "${var.lambda_name}-kms-access"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Action = [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:GenerateDataKey"
+      ],
+      Resource = "*"
+    }]
+  })
+}
+
+resource "aws_iam_policy_attachment" "attach_kms_policy" {
+  name       = "${var.lambda_name}-kms-policy-attach"
+  roles      = [aws_iam_role.resize_lambda_role.name]
+  policy_arn = aws_iam_policy.allow_kms_lambda.arn
+}
+
+
 # ✅ S3에서 Lambda 호출 허용
 resource "aws_lambda_permission" "allow_s3" {
   statement_id  = "AllowExecutionFromS3"

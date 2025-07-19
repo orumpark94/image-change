@@ -19,6 +19,30 @@ resource "aws_iam_role" "presign_lambda_role" {
   })
 }
 
+# IAM Role 정의 이후 아래처럼 추가
+resource "aws_iam_policy" "allow_kms_lambda" {
+  name = "${var.lambda_name}-kms-access"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Action = [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:GenerateDataKey"
+      ],
+      Resource = "*"
+    }]
+  })
+}
+
+resource "aws_iam_policy_attachment" "attach_kms_policy" {
+  name       = "${var.lambda_name}-kms-policy-attach"
+  roles      = [aws_iam_role.presign_lambda_role.name]
+  policy_arn = aws_iam_policy.allow_kms_lambda.arn
+}
+
 resource "aws_iam_policy_attachment" "presign_lambda_policy" {
   name       = "${var.lambda_name}-policy-attach"
   roles      = [aws_iam_role.presign_lambda_role.name]
