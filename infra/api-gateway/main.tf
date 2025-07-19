@@ -220,11 +220,13 @@ resource "aws_api_gateway_stage" "this" {
 ############################
 locals {
   api_gateway_url = "https://${aws_api_gateway_rest_api.this.id}.execute-api.${var.region}.amazonaws.com/${var.stage_name}"
+  cloudfront_url  = "https://${var.allowed_origin}"  # ✅ protocol 포함된 CloudFront URL 생성
 }
 
 data "template_file" "alb_config" {
   template = jsonencode({
-    apiUrl = local.api_gateway_url
+    apiUrl = local.api_gateway_url,
+    cdnUrl = local.cloudfront_url  
   })
 }
 
