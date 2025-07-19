@@ -68,9 +68,8 @@ resource "aws_api_gateway_integration" "post_lambda_presign" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${var.region}:${data.aws_caller_identity.current.account_id}:function:${var.lambda_presign_function_name}/invocations"
-  depends_on = [
-    aws_lambda_function.presign_handler
-  ]
+ 
+
 }
 
 
