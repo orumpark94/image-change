@@ -36,12 +36,18 @@ resource "aws_api_gateway_integration" "lambda_presign" {
   uri = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${var.region}:${data.aws_caller_identity.current.account_id}:function:${var.lambda_presign_function_name}/invocations"
 }
 
-resource "aws_lambda_permission" "api_gw_invoke_presign" {
-  statement_id  = "AllowAPIGatewayInvokePresign"
+resource "aws_lambda_permission" "api_gw_invoke_presign_post" {
+  statement_id  = "AllowAPIGatewayInvokePresignPost"
   action        = "lambda:InvokeFunction"
   function_name = var.lambda_presign_function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.this.execution_arn}/GET/presign"
+  source_arn    = "${aws_api_gateway_rest_api.this.execution_arn}/POST/presign"
+
+  depends_on = [
+    aws_api_gateway_method.post_presign,
+    aws_api_gateway_integration.post_lambda_presign,
+    aws_api_gateway_deployment.this
+  ]
 }
 
 ############################
