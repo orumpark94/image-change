@@ -36,21 +36,6 @@ resource "aws_api_gateway_integration" "lambda_presign" {
   uri = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${var.region}:${data.aws_caller_identity.current.account_id}:function:${var.lambda_presign_function_name}/invocations"
 }
 
-resource "aws_lambda_permission" "api_gw_invoke_presign_post" {
-  statement_id  = "AllowAPIGatewayInvokePresignPost"
-  action        = "lambda:InvokeFunction"
-  function_name = var.lambda_presign_function_name
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.this.execution_arn}/*/POST/presign"
-  
-  depends_on = [
-    aws_api_gateway_method.post_presign,
-    aws_api_gateway_integration.post_lambda_presign,
-    aws_api_gateway_deployment.this,
-    aws_api_gateway_stage.this
-  ]
-}
-
 ############################
 # POST /presign
 ############################
@@ -68,14 +53,28 @@ resource "aws_api_gateway_integration" "post_lambda_presign" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${var.region}:${data.aws_caller_identity.current.account_id}:function:${var.lambda_presign_function_name}/invocations"
- 
-
 }
 
+############################
+# Lambda Permission
+############################
+resource "aws_lambda_permission" "api_gw_invoke_presign_post" {
+  statement_id  = "AllowAPIGatewayInvokePresignPost"
+  action        = "lambda:InvokeFunction"
+  function_name = var.lambda_presign_function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.this.execution_arn}/*/POST/presign"
 
+  depends_on = [
+    aws_api_gateway_method.post_presign,
+    aws_api_gateway_integration.post_lambda_presign,
+    aws_api_gateway_deployment.this,
+    aws_api_gateway_stage.this
+  ]
+}
 
 ############################
-# CORS 설정 (GET 응답)
+# CORS 설정 (GET)
 ############################
 resource "aws_api_gateway_method_response" "get_cors" {
   rest_api_id = aws_api_gateway_rest_api.this.id
@@ -108,7 +107,7 @@ resource "aws_api_gateway_integration_response" "get_cors" {
 }
 
 ############################
-# CORS 설정 (POST 응답)
+# CORS 설정 (POST)
 ############################
 resource "aws_api_gateway_method_response" "post_cors" {
   rest_api_id = aws_api_gateway_rest_api.this.id
@@ -172,6 +171,10 @@ resource "aws_api_gateway_method_response" "options_response" {
     "method.response.header.Access-Control-Allow-Headers" = true
     "method.response.header.Access-Control-Allow-Methods" = true
   }
+
+  response_models = {
+    "application/json" = "Empty"
+  }
 }
 
 resource "aws_api_gateway_integration_response" "options_response" {
@@ -185,7 +188,11 @@ resource "aws_api_gateway_integration_response" "options_response" {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
     "method.response.header.Access-Control-Allow-Methods" = "'GET,POST,OPTIONS'"
   }
-  depends_on = [aws_api_gateway_integration.options_mock]
+
+  depends_on = [
+    aws_api_gateway_integration.options_mock,
+    aws_api_gateway_method_response.options_response
+  ]
 }
 
 ############################
