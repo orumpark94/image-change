@@ -45,7 +45,7 @@ resource "aws_lambda_permission" "api_gw_invoke_presign" {
 }
 
 ############################
-# ✅ POST /presign (추가된 부분)
+# POST /presign
 ############################
 resource "aws_api_gateway_method" "post_presign" {
   rest_api_id   = aws_api_gateway_rest_api.this.id
@@ -105,6 +105,39 @@ resource "aws_api_gateway_integration_response" "get_cors" {
 }
 
 ############################
+# CORS 설정 (POST 응답)
+############################
+resource "aws_api_gateway_method_response" "post_cors" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.presign.id
+  http_method = aws_api_gateway_method.post_presign.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin"  = true
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+  }
+
+  response_models = {
+    "application/json" = "Empty"
+  }
+}
+
+resource "aws_api_gateway_integration_response" "post_cors" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.presign.id
+  http_method = aws_api_gateway_method.post_presign.http_method
+  status_code = aws_api_gateway_method_response.post_cors.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin"  = "'https://${var.allowed_origin}'"
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+    "method.response.header.Access-Control-Allow-Methods" = "'GET,POST,OPTIONS'"
+  }
+}
+
+############################
 # OPTIONS /presign (Preflight)
 ############################
 resource "aws_api_gateway_method" "options_presign" {
@@ -159,15 +192,15 @@ resource "aws_api_gateway_deployment" "this" {
   depends_on = [
     aws_api_gateway_integration.lambda_presign,
     aws_api_gateway_integration_response.get_cors,
-    aws_api_gateway_integration_response.options_response,
-    aws_api_gateway_integration.post_lambda_presign  # ✅ POST 통합도 포함
+    aws_api_gateway_integration_response.post_cors,
+    aws_api_gateway_integration_response.options_response
   ]
 
   rest_api_id = aws_api_gateway_rest_api.this.id
 }
 
 resource "aws_api_gateway_stage" "this" {
-  stage_name    = "prod"
+  stage_name    = var.stage_name
   rest_api_id   = aws_api_gateway_rest_api.this.id
   deployment_id = aws_api_gateway_deployment.this.id
 }
@@ -190,7 +223,7 @@ resource "aws_s3_object" "alb_config" {
   key          = "alb-config.json"
   content      = data.template_file.alb_config.rendered
   content_type = "application/json"
-  depends_on = [aws_api_gateway_deployment.this]
+  depends_on   = [aws_api_gateway_deployment.this]
 }
 
 terraform {
