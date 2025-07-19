@@ -11,15 +11,9 @@ resource "aws_cloudfront_response_headers_policy" "secure_policy" {
     }
 
     content_security_policy {
-      override = true
-      content_security_policy = <<EOF
-default-src 'self';
-script-src 'self' 'unsafe-inline';
-style-src 'self' 'unsafe-inline';
-img-src 'self' data:;
-connect-src 'self' https:;
-EOF
-    }
+  override = true
+  content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src https:;"
+  } 
   }
 }
 
