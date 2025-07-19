@@ -5,8 +5,29 @@ import { Readable } from "stream";
 const s3 = new S3Client();
 const bucketName = process.env.BUCKET_NAME;
 
+// ✅ S3 stream을 buffer로 변환
+const streamToBuffer = (stream) =>
+  new Promise((resolve, reject) => {
+    const chunks = [];
+    stream.on("data", (chunk) => chunks.push(chunk));
+    stream.on("end", () => resolve(Buffer.concat(chunks)));
+    stream.on("error", reject);
+  });
+
 export const handler = async (event) => {
   try {
+    // ✅ 이벤트 유효성 검사
+    if (!event.Records || !event.Records[0]) {
+      console.error("❌ 잘못된 이벤트 구조:", event);
+      return { statusCode: 400, body: "Invalid event structure" };
+    }
+
+    // ✅ 환경변수 확인
+    if (!bucketName) {
+      console.error("❌ 환경변수 BUCKET_NAME이 정의되지 않았습니다.");
+      return { statusCode: 500, body: "Missing environment variable BUCKET_NAME" };
+    }
+
     const record = event.Records[0];
     const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, " "));
 
@@ -17,7 +38,7 @@ export const handler = async (event) => {
     }
 
     // ✅ 확장자 필터링 (.jpg, .jpeg, .png, .webp)
-    if (!/\.(jpg|jpeg|png|webp)$/.test(key.toLowerCase())) {
+    if (!/\.(jpg|jpeg|png|webp)$/i.test(key)) {
       console.error("❌ 허용되지 않은 파일 형식:", key);
       return;
     }
@@ -30,7 +51,7 @@ export const handler = async (event) => {
     const { Body } = await s3.send(getCommand);
     const buffer = await streamToBuffer(Body);
 
-    // ✅ 리사이징 (단일 사이즈: 300px)
+    // ✅ 리사이징 (300px 고정)
     const resizedImage = await sharp(buffer)
       .resize({ width: 300 })
       .toBuffer();
@@ -63,16 +84,7 @@ export const handler = async (event) => {
     console.error("❌ Lambda 처리 중 오류 발생:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "Lambda Error", error }),
+      body: JSON.stringify({ message: "Lambda Error", error: error.message }),
     };
   }
 };
-
-// ✅ S3 stream을 buffer로 변환
-const streamToBuffer = (stream) =>
-  new Promise((resolve, reject) => {
-    const chunks = [];
-    stream.on("data", (chunk) => chunks.push(chunk));
-    stream.on("end", () => resolve(Buffer.concat(chunks)));
-    stream.on("error", reject);
-  });
