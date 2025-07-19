@@ -162,6 +162,9 @@ resource "aws_s3_object" "alb_config" {
   key          = "alb-config.json"
   content      = data.template_file.alb_config.rendered
   content_type = "application/json"
+  depends_on = [
+    aws_api_gateway_deployment.this
+  ]
 }
 
 terraform {
